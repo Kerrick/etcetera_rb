@@ -1,0 +1,33 @@
+module Etcetera
+  # Allows applications to retrieve the paths of configuration, data, and cache
+  # directories specifically for them.
+  module AppStrategy
+    # The arguments to the creator method of an AppStrategy.
+    class AppStrategyArgs
+      attr_reader top_level_domain: String
+      attr_reader author: String
+      attr_reader app_name: String
+
+      def initialize: (top_level_domain: String, author: String, app_name: String) -> void
+
+      def bundle_id: () -> String
+      def unixy_name: () -> String
+    end
+
+    def self.choose_native_strategy: (AppStrategyArgs args) -> native_app_strategy
+    def self.choose_app_strategy: (AppStrategyArgs args) -> default_app_strategy
+
+    def home_dir: () -> Pathname
+    def config_dir: () -> Pathname
+    def data_dir: () -> Pathname
+    def cache_dir: () -> Pathname
+    def state_dir: () -> Pathname?
+    def runtime_dir: () -> Pathname?
+
+    def in_config_dir: (Pathname | String path) -> Pathname
+    def in_data_dir: (Pathname | String path) -> Pathname
+    def in_cache_dir: (Pathname | String path) -> Pathname
+    def in_state_dir: (Pathname | String path) -> Pathname?
+    def in_runtime_dir: (Pathname | String path) -> Pathname?
+  end
+end

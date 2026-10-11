@@ -1,0 +1,9 @@
+module Etcetera
+  module BaseStrategy
+    class Xdg
+      include Etcetera::BaseStrategy
+
+      def initialize: () -> void
+    end
+  end
+end

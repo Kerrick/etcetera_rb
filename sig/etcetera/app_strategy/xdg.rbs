@@ -1,0 +1,9 @@
+module Etcetera
+  module AppStrategy
+    class Xdg
+      include Etcetera::AppStrategy
+
+      def initialize: (AppStrategyArgs args) -> void
+    end
+  end
+end

@@ -1,0 +1,14 @@
+module Etcetera
+  # Provides configuration, data, and cache directories of the current user.
+  module BaseStrategy
+    def self.choose_native_strategy: () -> native_base_strategy
+    def self.choose_base_strategy: () -> default_base_strategy
+
+    def home_dir: () -> Pathname
+    def config_dir: () -> Pathname
+    def data_dir: () -> Pathname
+    def cache_dir: () -> Pathname
+    def state_dir: () -> Pathname?
+    def runtime_dir: () -> Pathname?
+  end
+end
