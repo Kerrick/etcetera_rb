@@ -50,9 +50,9 @@ module Etcetera
     #   ))
     #
     #   app_strategy.home_dir == Pathname.new(home_path) # => true
-    #   app_strategy.config_dir == Pathname.new("#{data_path}Acme Corp/Frobnicator Plus/config") # => true
-    #   app_strategy.data_dir == Pathname.new("#{data_path}Acme Corp/Frobnicator Plus/data") # => true
-    #   app_strategy.cache_dir == Pathname.new("#{cache_path}Acme Corp/Frobnicator Plus/cache") # => true
+    #   app_strategy.config_dir == Pathname.new(data_path).join("Acme Corp/Frobnicator Plus/config") # => true
+    #   app_strategy.data_dir == Pathname.new(data_path).join("Acme Corp/Frobnicator Plus/data") # => true
+    #   app_strategy.cache_dir == Pathname.new(cache_path).join("Acme Corp/Frobnicator Plus/cache") # => true
     #   app_strategy.state_dir # => nil
     #   app_strategy.runtime_dir # => nil
     class Windows < Data.define(:base_strategy, :author_app_name_path)

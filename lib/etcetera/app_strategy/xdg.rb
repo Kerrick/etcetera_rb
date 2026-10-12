@@ -54,11 +54,11 @@ module Etcetera
     #     app_name: "Frobnicator Plus"
     #   ))
     #
-    #   app_strategy.config_dir == Pathname.new("#{config_path}frobnicator-plus") # => true
-    #   app_strategy.data_dir == Pathname.new("#{data_path}frobnicator-plus") # => true
-    #   app_strategy.cache_dir == Pathname.new("#{cache_path}frobnicator-plus") # => true
-    #   app_strategy.state_dir == Pathname.new("#{state_path}frobnicator-plus") # => true
-    #   app_strategy.runtime_dir == Pathname.new("#{runtime_path}frobnicator-plus") # => true
+    #   app_strategy.config_dir == Pathname.new(config_path).join("frobnicator-plus") # => true
+    #   app_strategy.data_dir == Pathname.new(data_path).join("frobnicator-plus") # => true
+    #   app_strategy.cache_dir == Pathname.new(cache_path).join("frobnicator-plus") # => true
+    #   app_strategy.state_dir == Pathname.new(state_path).join("frobnicator-plus") # => true
+    #   app_strategy.runtime_dir == Pathname.new(runtime_path).join("frobnicator-plus") # => true
     #
     # The XDG spec requires that when the environment variables’ values are not absolute paths, their values should be ignored. This example exemplifies this behaviour:
     #
