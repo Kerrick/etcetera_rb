@@ -6,7 +6,7 @@ module Etcetera
       require_relative "../windows_sys"
 
       # The C runtime function the crate declares in an `extern "C"` block.
-      module CRT
+      module CRT # :nodoc: all
         extend Fiddle::Importer
 
         dlload "ucrtbase.dll"
@@ -60,7 +60,7 @@ module Etcetera
     #   base_strategy.cache_dir == Pathname.new(cache_path) # => true
     #   base_strategy.state_dir # => nil
     #   base_strategy.runtime_dir # => nil
-    Windows = Data.define(:home_dir) do
+    class Windows < Data.define(:home_dir)
       # Create a new Windows BaseStrategy
       def initialize(home_dir: Etcetera.home_dir) = super
 
@@ -91,16 +91,16 @@ module Etcetera
                       else return nil
                       end
 
-          path = Fiddle::Pointer.malloc(Fiddle::SIZEOF_VOIDP, Fiddle::RUBY_FREE)
-          case WindowsSys.SHGetKnownFolderPath(folder_id.to_ptr, WindowsSys::KF_FLAG_DONT_VERIFY, nil, path)
+          path = Fiddle::Pointer.new(0)
+          case WindowsSys.SHGetKnownFolderPath(folder_id.to_ptr, WindowsSys::KF_FLAG_DONT_VERIFY, nil, path.ref)
           when WindowsSys::S_OK
-            path_slice = path.ptr[0, CRT.wcslen(path.ptr) * 2]
+            path_slice = path[0, CRT.wcslen(path) * 2]
             s = path_slice.force_encoding(Encoding::UTF_16LE).encode(Encoding::UTF_8, invalid: :replace)
-            WindowsSys.CoTaskMemFree(path.ptr)
+            WindowsSys.CoTaskMemFree(path)
             Pathname.new(s)
           else
             # Free any allocated memory even on failure. A null ptr is a no-op for `CoTaskMemFree`.
-            WindowsSys.CoTaskMemFree(path.ptr)
+            WindowsSys.CoTaskMemFree(path)
             nil
           end
         end

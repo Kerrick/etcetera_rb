@@ -20,20 +20,15 @@ module Etcetera
     #   app_strategy.cache_dir.relative_path_from(home_dir) # => #<Pathname:.frobnicator-plus/cache>
     #   app_strategy.state_dir.relative_path_from(home_dir) # => #<Pathname:.frobnicator-plus/state>
     #   app_strategy.runtime_dir.relative_path_from(home_dir) # => #<Pathname:.frobnicator-plus/runtime>
-    Unix = Data.define(
+    class Unix < Data.define(
       # This is `.frobnicator-plus` in the above example.
       :home_dir,
       :unixy_name
-    ) do
+    )
       include AppStrategy
 
-      class << self
-        alias_method :from_fields, :new
-        private :from_fields
-
-        # Create a new Unix AppStrategy
-        def new(args) = from_fields(home_dir: Etcetera.home_dir, unixy_name: ".#{args.unixy_name}")
-      end
+      # Create a new Unix AppStrategy
+      def self.new(args) = super(home_dir: Etcetera.home_dir, unixy_name: ".#{args.unixy_name}")
 
       private :unixy_name
 

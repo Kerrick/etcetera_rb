@@ -60,6 +60,7 @@ Like the crate, it leans on its language's standard library, so it differs from 
 - Directories are `Pathname`s rather than `PathBuf`s, & missing directories are `nil` rather than `None`.
 - `Pathname#==` compares paths as strings, so `Pathname.new("/foo/") != Pathname.new("/foo")`, unlike `Path`'s component-wise comparison.
 - `Dir.home` & `std::env::home_dir` don't always agree on the home directory, for eg. when `HOME` is unset or empty, or on Windows when `HOME` & `USERPROFILE` differ.
+- On Windows, `Pathname#absolute?` accepts paths such as `/foo` & `C:foo` that `Path::is_absolute` rejects, so the `Xdg` strategy honours an `XDG_CONFIG_HOME` of `/foo` there.
 - Strategies & `AppStrategyArgs` are `Data` value objects.
 - Ruby can't tell macOS & iOS apart, so `choose_native_strategy` picks `Apple` on any `darwin` platform.
 - The Known Folder bindings in `Etcetera::WindowsSys` are derived from [`windows-sys`](https://github.com/microsoft/windows-rs), which the crate depends on; see [LICENSE-WINDOWS-SYS](LICENSE-WINDOWS-SYS).

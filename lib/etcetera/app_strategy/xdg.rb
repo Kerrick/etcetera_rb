@@ -85,16 +85,11 @@ module Etcetera
     #   app_strategy.cache_dir.relative_path_from(home_dir) # => #<Pathname:.cache/frobnicator-plus>
     #   app_strategy.state_dir.relative_path_from(home_dir) # => #<Pathname:.local/state/frobnicator-plus>
     #   app_strategy.runtime_dir # => nil
-    Xdg = Data.define(:base_strategy, :unixy_name) do
+    class Xdg < Data.define(:base_strategy, :unixy_name)
       include AppStrategy
 
-      class << self
-        alias_method :from_fields, :new
-        private :from_fields
-
-        # Create a new Xdg AppStrategy
-        def new(args) = from_fields(base_strategy: BaseStrategy::Xdg.new, unixy_name: args.unixy_name)
-      end
+      # Create a new Xdg AppStrategy
+      def self.new(args) = super(base_strategy: BaseStrategy::Xdg.new, unixy_name: args.unixy_name)
 
       private :base_strategy, :unixy_name
 

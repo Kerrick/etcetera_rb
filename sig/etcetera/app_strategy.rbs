@@ -1,30 +1,11 @@
 module Etcetera
   # Allows applications to retrieve the paths of configuration, data, and cache directories specifically for them.
   interface _AppStrategy
-    # Gets the home directory of the current user.
     def home_dir: () -> Pathname
-
-    # Gets the configuration directory for your application.
     def config_dir: () -> Pathname
-
-    # Gets the data directory for your application.
     def data_dir: () -> Pathname
-
-    # Gets the cache directory for your application.
     def cache_dir: () -> Pathname
-
-    # Gets the state directory for your application.
-    # Currently, only the Xdg & Unix strategies support
-    # this.
     def state_dir: () -> Pathname?
-
-    # Gets the runtime directory for your application.
-    # Currently, only the Xdg & Unix strategies support
-    # this.
-    #
-    # Note: The XDG Base Directory Specification places additional requirements on this
-    # directory related to ownership, permissions, and persistence. This library does not check
-    # these requirements.
     def runtime_dir: () -> Pathname?
   end
 

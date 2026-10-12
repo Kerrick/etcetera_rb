@@ -16,7 +16,7 @@ module Etcetera
     #   base_strategy.cache_dir.relative_path_from(home_dir) # => #<Pathname:Library/Caches>
     #   base_strategy.state_dir # => nil
     #   base_strategy.runtime_dir # => nil
-    Apple = Data.define(:home_dir) do
+    class Apple < Data.define(:home_dir)
       # Create a new Apple BaseStrategy
       def initialize(home_dir: Etcetera.home_dir) = super
 

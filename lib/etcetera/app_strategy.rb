@@ -10,7 +10,7 @@ module Etcetera
     # +top_level_domain+:: The top level domain of the application, e.g. +com+, +org+, or <tt>io.github</tt>.
     # +author+:: The name of the author of the application.
     # +app_name+:: The application’s name. This should be capitalised if appropriate.
-    AppStrategyArgs = Data.define(:top_level_domain, :author, :app_name) do
+    class AppStrategyArgs < Data.define(:top_level_domain, :author, :app_name)
       def initialize(top_level_domain: "", author: "", app_name: "") = super
 
       # Constructs a bunde identifier from an +AppStrategyArgs+.
@@ -44,6 +44,56 @@ module Etcetera
       def unixy_name = app_name.downcase.tr(" ", "-")
     end
 
+    ##
+    # :method: home_dir
+    # :call-seq:
+    #   home_dir -> Pathname
+    #
+    # Gets the home directory of the current user.
+
+    ##
+    # :method: config_dir
+    # :call-seq:
+    #   config_dir -> Pathname
+    #
+    # Gets the configuration directory for your application.
+
+    ##
+    # :method: data_dir
+    # :call-seq:
+    #   data_dir -> Pathname
+    #
+    # Gets the data directory for your application.
+
+    ##
+    # :method: cache_dir
+    # :call-seq:
+    #   cache_dir -> Pathname
+    #
+    # Gets the cache directory for your application.
+
+    ##
+    # :method: state_dir
+    # :call-seq:
+    #   state_dir -> Pathname or nil
+    #
+    # Gets the state directory for your application.
+    # Currently, only the {Xdg}[rdoc-ref:Etcetera::AppStrategy::Xdg] & {Unix}[rdoc-ref:Etcetera::AppStrategy::Unix] strategies support
+    # this.
+
+    ##
+    # :method: runtime_dir
+    # :call-seq:
+    #   runtime_dir -> Pathname or nil
+    #
+    # Gets the runtime directory for your application.
+    # Currently, only the {Xdg}[rdoc-ref:Etcetera::AppStrategy::Xdg] & {Unix}[rdoc-ref:Etcetera::AppStrategy::Unix] strategies support
+    # this.
+    #
+    # Note: The {XDG Base Directory Specification}[https://specifications.freedesktop.org/basedir/latest/] places additional requirements on this
+    # directory related to ownership, permissions, and persistence. This library does not check
+    # these requirements.
+
     # Constructs a path inside your application’s configuration directory to which a path of your choice has been appended.
     def in_config_dir(path) = config_dir.join(path)
 
@@ -62,7 +112,7 @@ module Etcetera
     # Currently, only the {Xdg}[rdoc-ref:Etcetera::AppStrategy::Xdg] & {Unix}[rdoc-ref:Etcetera::AppStrategy::Unix] strategies support
     # this.
     #
-    # See the note in +runtime_dir+ for more information.
+    # See the note in {runtime_dir}[rdoc-ref:Etcetera::AppStrategy#runtime_dir] for more information.
     def in_runtime_dir(path) = runtime_dir&.join(path)
 
     # Returns the current OS’s native {AppStrategy}[rdoc-ref:Etcetera::AppStrategy].

@@ -9,7 +9,9 @@ module Etcetera
   # Derived from windows-sys 0.61.2 (https://github.com/microsoft/windows-rs),
   # Copyright (c) Microsoft Corporation, used under the MIT License; see
   # LICENSE-WINDOWS-SYS.
-  module WindowsSys
+  module WindowsSys # :nodoc: all
+    # :stopdoc:
+
     extend Fiddle::Importer
 
     dlload "shell32.dll", "combase.dll"

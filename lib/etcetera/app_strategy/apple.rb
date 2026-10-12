@@ -20,16 +20,11 @@ module Etcetera
     #   app_strategy.cache_dir.relative_path_from(home_dir) # => #<Pathname:Library/Caches/org.acme-corp.Frobnicator-Plus>
     #   app_strategy.state_dir # => nil
     #   app_strategy.runtime_dir # => nil
-    Apple = Data.define(:base_strategy, :bundle_id) do
+    class Apple < Data.define(:base_strategy, :bundle_id)
       include AppStrategy
 
-      class << self
-        alias_method :from_fields, :new
-        private :from_fields
-
-        # Create a new Apple AppStrategy
-        def new(args) = from_fields(base_strategy: BaseStrategy::Apple.new, bundle_id: args.bundle_id)
-      end
+      # Create a new Apple AppStrategy
+      def self.new(args) = super(base_strategy: BaseStrategy::Apple.new, bundle_id: args.bundle_id)
 
       private :base_strategy, :bundle_id
 

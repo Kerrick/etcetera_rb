@@ -55,20 +55,15 @@ module Etcetera
     #   app_strategy.cache_dir == Pathname.new("#{cache_path}Acme Corp/Frobnicator Plus/cache") # => true
     #   app_strategy.state_dir # => nil
     #   app_strategy.runtime_dir # => nil
-    Windows = Data.define(:base_strategy, :author_app_name_path) do
+    class Windows < Data.define(:base_strategy, :author_app_name_path)
       include AppStrategy
 
-      class << self
-        alias_method :from_fields, :new
-        private :from_fields
-
-        # Create a new Windows AppStrategy
-        def new(args)
-          from_fields(
-            base_strategy: BaseStrategy::Windows.new,
-            author_app_name_path: Pathname.new(args.author).join(args.app_name)
-          )
-        end
+      # Create a new Windows AppStrategy
+      def self.new(args)
+        super(
+          base_strategy: BaseStrategy::Windows.new,
+          author_app_name_path: Pathname.new(args.author).join(args.app_name)
+        )
       end
 
       private :base_strategy, :author_app_name_path
