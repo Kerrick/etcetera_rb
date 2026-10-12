@@ -11,8 +11,6 @@ module Etcetera
     # +author+:: The name of the author of the application.
     # +app_name+:: The application’s name. This should be capitalised if appropriate.
     AppStrategyArgs = Data.define(:top_level_domain, :author, :app_name) do
-      include FieldOrder
-
       def initialize(top_level_domain: "", author: "", app_name: "") = super
 
       # Constructs a bunde identifier from an +AppStrategyArgs+.
@@ -46,32 +44,6 @@ module Etcetera
       def unixy_name = app_name.downcase.tr(" ", "-")
     end
 
-    # Gets the home directory of the current user.
-    def home_dir = raise(NotImplementedError, "#{self.class} must implement #home_dir")
-
-    # Gets the configuration directory for your application.
-    def config_dir = raise(NotImplementedError, "#{self.class} must implement #config_dir")
-
-    # Gets the data directory for your application.
-    def data_dir = raise(NotImplementedError, "#{self.class} must implement #data_dir")
-
-    # Gets the cache directory for your application.
-    def cache_dir = raise(NotImplementedError, "#{self.class} must implement #cache_dir")
-
-    # Gets the state directory for your application.
-    # Currently, only the {Xdg}[rdoc-ref:Etcetera::AppStrategy::Xdg] & {Unix}[rdoc-ref:Etcetera::AppStrategy::Unix] strategies support
-    # this.
-    def state_dir = raise(NotImplementedError, "#{self.class} must implement #state_dir")
-
-    # Gets the runtime directory for your application.
-    # Currently, only the {Xdg}[rdoc-ref:Etcetera::AppStrategy::Xdg] & {Unix}[rdoc-ref:Etcetera::AppStrategy::Unix] strategies support
-    # this.
-    #
-    # Note: The {XDG Base Directory Specification}[https://specifications.freedesktop.org/basedir/latest/] places additional requirements on this
-    # directory related to ownership, permissions, and persistence. This library does not check
-    # these requirements.
-    def runtime_dir = raise(NotImplementedError, "#{self.class} must implement #runtime_dir")
-
     # Constructs a path inside your application’s configuration directory to which a path of your choice has been appended.
     def in_config_dir(path) = config_dir.join(path)
 
@@ -90,14 +62,14 @@ module Etcetera
     # Currently, only the {Xdg}[rdoc-ref:Etcetera::AppStrategy::Xdg] & {Unix}[rdoc-ref:Etcetera::AppStrategy::Unix] strategies support
     # this.
     #
-    # See the note in {runtime_dir}[rdoc-ref:Etcetera::AppStrategy#runtime_dir] for more information.
+    # See the note in +runtime_dir+ for more information.
     def in_runtime_dir(path) = runtime_dir&.join(path)
 
     # Returns the current OS’s native {AppStrategy}[rdoc-ref:Etcetera::AppStrategy].
     # This uses the {Windows}[rdoc-ref:Etcetera::AppStrategy::Windows] strategy on Windows, {Apple}[rdoc-ref:Etcetera::AppStrategy::Apple] on macOS & iOS, and {Xdg}[rdoc-ref:Etcetera::AppStrategy::Xdg] everywhere else.
     # This is the convention used by most GUI applications.
     def self.choose_native_strategy(args)
-      if WINDOWS_HOST then Windows.new(args)
+      if Gem.win_platform? then Windows.new(args)
       elsif RUBY_PLATFORM.include?("darwin") then Apple.new(args)
       else Xdg.new(args)
       end
@@ -107,7 +79,7 @@ module Etcetera
     # This uses the {Windows}[rdoc-ref:Etcetera::AppStrategy::Windows] strategy on Windows, and {Xdg}[rdoc-ref:Etcetera::AppStrategy::Xdg] everywhere else.
     # This is the convention used by most CLI applications.
     def self.choose_app_strategy(args)
-      WINDOWS_HOST ? Windows.new(args) : Xdg.new(args)
+      Gem.win_platform? ? Windows.new(args) : Xdg.new(args)
     end
   end
 end

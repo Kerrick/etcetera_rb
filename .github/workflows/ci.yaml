@@ -23,6 +23,21 @@ jobs:
 
       - run: bundle exec rake rubocop
 
+  outdated:
+    name: Outdated
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+          bundler-cache: true
+
+      - run: bundle outdated
+
   ci:
     strategy:
       fail-fast: false

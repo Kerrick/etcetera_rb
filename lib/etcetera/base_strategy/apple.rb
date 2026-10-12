@@ -17,9 +17,6 @@ module Etcetera
     #   base_strategy.state_dir # => nil
     #   base_strategy.runtime_dir # => nil
     Apple = Data.define(:home_dir) do
-      include BaseStrategy
-      include FieldOrder
-
       # Create a new Apple BaseStrategy
       def initialize(home_dir: Etcetera.home_dir) = super
 

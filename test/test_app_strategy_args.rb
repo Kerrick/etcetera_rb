@@ -52,6 +52,5 @@ class TestAppStrategyArgs < Minitest::Test
   def test_value_semantics
     assert_equal acme_args, acme_args
     assert_equal acme_args.hash, acme_args.hash
-    assert_operator Etcetera::AppStrategyArgs.new(top_level_domain: "com"), :<, acme_args
   end
 end

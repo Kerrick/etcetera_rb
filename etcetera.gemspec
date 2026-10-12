@@ -17,11 +17,12 @@ Gem::Specification.new do |spec|
   DESCRIPTION
   spec.homepage = "https://github.com/Kerrick/etcetera_rb"
   spec.required_ruby_version = ">= 4.0.0"
-  spec.licenses = ["Apache-2.0", "MIT"]
+  spec.licenses = ["MIT", "Apache-2.0"]
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage
   spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/ruby/CHANGELOG.md"
+  spec.metadata["documentation_uri"] = "https://rubydoc.info/gems/etcetera"
 
   # Specify which files are added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.

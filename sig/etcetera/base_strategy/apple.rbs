@@ -1,14 +1,10 @@
 module Etcetera
   module BaseStrategy
     class Apple < Data
-      include Etcetera::BaseStrategy
-      include Comparable
-
-      attr_reader home_dir: Pathname
+      include _BaseStrategy
 
       def self.new: (?home_dir: Pathname) -> instance
       def initialize: (?home_dir: Pathname) -> void
-      def <=>: (untyped other) -> Integer?
     end
   end
 end

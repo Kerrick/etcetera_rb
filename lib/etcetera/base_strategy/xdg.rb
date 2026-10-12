@@ -74,9 +74,6 @@ module Etcetera
     #   base_strategy.state_dir.relative_path_from(home_dir) # => #<Pathname:.local/state>
     #   base_strategy.runtime_dir # => nil
     Xdg = Data.define(:home_dir) do
-      include BaseStrategy
-      include FieldOrder
-
       # Create a new Xdg BaseStrategy
       def initialize(home_dir: Etcetera.home_dir) = super
 

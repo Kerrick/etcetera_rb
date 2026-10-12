@@ -1,18 +1,43 @@
 module Etcetera
-  # Allows applications to retrieve the paths of configuration, data, and cache
-  # directories specifically for them.
-  module AppStrategy
+  # Allows applications to retrieve the paths of configuration, data, and cache directories specifically for them.
+  interface _AppStrategy
+    # Gets the home directory of the current user.
+    def home_dir: () -> Pathname
+
+    # Gets the configuration directory for your application.
+    def config_dir: () -> Pathname
+
+    # Gets the data directory for your application.
+    def data_dir: () -> Pathname
+
+    # Gets the cache directory for your application.
+    def cache_dir: () -> Pathname
+
+    # Gets the state directory for your application.
+    # Currently, only the Xdg & Unix strategies support
+    # this.
+    def state_dir: () -> Pathname?
+
+    # Gets the runtime directory for your application.
+    # Currently, only the Xdg & Unix strategies support
+    # this.
+    #
+    # Note: The XDG Base Directory Specification places additional requirements on this
+    # directory related to ownership, permissions, and persistence. This library does not check
+    # these requirements.
+    def runtime_dir: () -> Pathname?
+  end
+
+  # These strategies require you to provide some information on your application, and they will in turn locate the configuration/data/cache directory specifically for your application.
+  module AppStrategy : _AppStrategy
     # The arguments to the creator method of an AppStrategy.
     class AppStrategyArgs < Data
-      include Comparable
-
       attr_reader top_level_domain: String
       attr_reader author: String
       attr_reader app_name: String
 
       def self.new: (?top_level_domain: String, ?author: String, ?app_name: String) -> instance
       def initialize: (?top_level_domain: String, ?author: String, ?app_name: String) -> void
-      def <=>: (untyped other) -> Integer?
 
       def bundle_id: () -> String
       def unixy_name: () -> String
@@ -20,13 +45,6 @@ module Etcetera
 
     def self.choose_native_strategy: (AppStrategyArgs args) -> native_app_strategy
     def self.choose_app_strategy: (AppStrategyArgs args) -> default_app_strategy
-
-    def home_dir: () -> Pathname
-    def config_dir: () -> Pathname
-    def data_dir: () -> Pathname
-    def cache_dir: () -> Pathname
-    def state_dir: () -> Pathname?
-    def runtime_dir: () -> Pathname?
 
     def in_config_dir: (Pathname | String path) -> Pathname
     def in_data_dir: (Pathname | String path) -> Pathname

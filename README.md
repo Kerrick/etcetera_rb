@@ -5,8 +5,8 @@
 
 # Etcetera
 
-This is a Ruby library that allows you to determine the locations of configuration, data, cache & other files for your application.
-Existing Ruby libraries generally do not give you a choice in terms of which standards/conventions they follow.
+This is a Ruby port of a Rust library that allows you to determine the locations of configuration, data, cache & other files for your application.
+Existing Rust libraries generally do not give you a choice in terms of which standards/conventions they follow.
 Etcetera, on the other hand, gives you the choice.
 
 Minimum Ruby version: 4.0.0
@@ -62,3 +62,4 @@ Like the crate, it leans on its language's standard library, so it differs from 
 - `Dir.home` & `std::env::home_dir` don't always agree on the home directory, for eg. when `HOME` is unset or empty, or on Windows when `HOME` & `USERPROFILE` differ.
 - Strategies & `AppStrategyArgs` are `Data` value objects.
 - Ruby can't tell macOS & iOS apart, so `choose_native_strategy` picks `Apple` on any `darwin` platform.
+- The Known Folder bindings in `Etcetera::WindowsSys` are derived from [`windows-sys`](https://github.com/microsoft/windows-rs), which the crate depends on; see [LICENSE-WINDOWS-SYS](LICENSE-WINDOWS-SYS).

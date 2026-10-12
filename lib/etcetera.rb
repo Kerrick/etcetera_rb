@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative "etcetera/version"
-require_relative "etcetera/field_order"
 require_relative "etcetera/base_strategy"
 require_relative "etcetera/base_strategy/apple"
 require_relative "etcetera/base_strategy/windows"
@@ -107,9 +106,6 @@ require_relative "etcetera/app_strategy/xdg"
 #   config_dir.join("config.toml") == config_file # => true
 module Etcetera
   AppStrategyArgs = AppStrategy::AppStrategyArgs
-
-  WINDOWS_HOST = RUBY_PLATFORM.match?(/mswin|mingw|cygwin/)
-  private_constant :WINDOWS_HOST
 
   # A convenience function that wraps the {home}[https://docs.ruby-lang.org/en/master/Dir.html#method-c-home] function from the standard library.
   def self.home_dir

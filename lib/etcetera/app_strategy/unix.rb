@@ -26,7 +26,6 @@ module Etcetera
       :unixy_name
     ) do
       include AppStrategy
-      include FieldOrder
 
       class << self
         alias_method :from_fields, :new

@@ -1,111 +1,19 @@
 # frozen_string_literal: true
 
 module Etcetera
-  module BaseStrategy
-    # The Win32 Known Folder API the Windows strategy calls through windows-sys
-    # in the crate, bound with Fiddle the first time it is needed.
-    module KnownFolders
-      # FOLDERID_RoamingAppData and FOLDERID_LocalAppData, as defined by
-      # windows-sys 0.61.
-      FOLDER_IDS = {
-        "APPDATA" => "3EB685DB-65F9-4CF6-A03A-E3EF65729F3D",
-        "LOCALAPPDATA" => "F1B32785-6FBA-4FCF-9D55-7B8E7F157091"
-      }.freeze
+  module BaseStrategy # rubocop:disable Style/Documentation -- documented in base_strategy.rb
+    if Gem.win_platform?
+      require_relative "../windows_sys"
 
-      # The folder is returned even if it does not exist on disk yet.
-      KF_FLAG_DONT_VERIFY = 0x4000
+      # The C runtime function the crate declares in an `extern "C"` block.
+      module CRT
+        extend Fiddle::Importer
 
-      S_OK = 0
-
-      # The UTF-16LE code unit that terminates the returned path.
-      NULL_UNIT = "\x00\x00".b
-
-      class << self
-        def windows_host?
-          WINDOWS_HOST
-        end
-
-        # Returns the path of the given known folder, or nil if this isn't
-        # Windows or the API call fails.
-        def path_for(folder_id)
-          return nil unless windows_host?
-
-          known_folder(pack_guid(folder_id))
-        end
-
-        private
-
-        def known_folder(guid)
-          require "fiddle"
-
-          out = Fiddle::Pointer.malloc(Fiddle::SIZEOF_VOIDP, Fiddle::RUBY_FREE)
-          result = shell32.SHGetKnownFolderPath(guid, KF_FLAG_DONT_VERIFY, nil, out)
-          path_ptr = out.ptr
-          path = wide_string(path_ptr) if result == S_OK && !path_ptr.null?
-          # Free any allocated memory even on failure. A null ptr is a no-op
-          # for CoTaskMemFree.
-          co_task_mem_free(path_ptr)
-          path
-        end
-
-        def shell32
-          @shell32 ||= importer(
-            "shell32.dll",
-            "long SHGetKnownFolderPath(void* rfid, unsigned long flags, void* token, void* path)"
-          )
-        end
-
-        def co_task_mem_free(pointer)
-          task_mem_freeer.CoTaskMemFree(pointer)
-        end
-
-        # CoTaskMemFree moved from ole32.dll to combase.dll; try the modern
-        # home first, as windows-sys 0.61 does.
-        def task_mem_freeer
-          @task_mem_freeer ||= importer("combase.dll", "void CoTaskMemFree(void* pv)")
-        rescue Fiddle::DLError
-          @task_mem_freeer = importer("ole32.dll", "void CoTaskMemFree(void* pv)")
-        end
-
-        def importer(dll, prototype)
-          require "fiddle"
-          require "fiddle/import"
-
-          Module.new do
-            extend Fiddle::Importer
-            dlload dll
-            extern prototype
-          end
-        end
-
-        # A GUID is a u32, two u16s and eight u8s: the first three fields are
-        # little-endian, the last eight bytes are big-endian.
-        def pack_guid(folder_id)
-          parts = folder_id.scan(/[0-9a-fA-F]+/).map { |hex| hex.to_i(16) }
-          data1, data2, data3, data4_hi, data4_lo = parts
-
-          [data1].pack("L<") +
-            [data2, data3].pack("S<S<") +
-            [data4_hi].pack("S>") +
-            [data4_lo].pack("Q>")[2, 6]
-        end
-
-        # SHGetKnownFolderPath hands back a null-terminated UTF-16LE string.
-        # Read it two bytes at a time so we never read past its end.
-        def wide_string(pointer)
-          units = String.new(encoding: Encoding::BINARY)
-          offset = 0
-          while (unit = pointer[offset, 2]) && unit != NULL_UNIT
-            units << unit
-            offset += 2
-          end
-
-          units.force_encoding(Encoding::UTF_16LE)
-               .encode(Encoding::UTF_8, invalid: :replace, undef: :replace, replace: "\uFFFD")
-        end
+        dlload "ucrtbase.dll"
+        extern "size_t wcslen(void* buf)"
       end
+      private_constant :CRT
     end
-    private_constant :KnownFolders
 
     # This strategy follows Windows’ conventions. It seems that all Windows GUI apps, and some command-line ones follow this pattern. The specification is available {here}[https://docs.microsoft.com/en-us/windows/win32/shell/knownfolderid].
     #
@@ -153,9 +61,6 @@ module Etcetera
     #   base_strategy.state_dir # => nil
     #   base_strategy.runtime_dir # => nil
     Windows = Data.define(:home_dir) do
-      include BaseStrategy
-      include FieldOrder
-
       # Create a new Windows BaseStrategy
       def initialize(home_dir: Etcetera.home_dir) = super
 
@@ -176,14 +81,31 @@ module Etcetera
         value.empty? ? dir_crt(env) : Pathname.new(value)
       end
 
-      # Ref: https://github.com/rust-lang/cargo/blob/home-0.5.11/crates/home/src/windows.rs
-      # We should keep this code in sync with the above.
-      def dir_crt(env)
-        folder_id = KnownFolders::FOLDER_IDS[env]
-        return nil if folder_id.nil?
+      if Gem.win_platform?
+        # Ref: https://github.com/rust-lang/cargo/blob/home-0.5.11/crates/home/src/windows.rs
+        # We should keep this code in sync with the above.
+        def dir_crt(env)
+          folder_id = case env
+                      when "APPDATA" then WindowsSys::FOLDERID_RoamingAppData
+                      when "LOCALAPPDATA" then WindowsSys::FOLDERID_LocalAppData
+                      else return nil
+                      end
 
-        path = KnownFolders.path_for(folder_id)
-        path && Pathname.new(path)
+          path = Fiddle::Pointer.malloc(Fiddle::SIZEOF_VOIDP, Fiddle::RUBY_FREE)
+          case WindowsSys.SHGetKnownFolderPath(folder_id.to_ptr, WindowsSys::KF_FLAG_DONT_VERIFY, nil, path)
+          when WindowsSys::S_OK
+            path_slice = path.ptr[0, CRT.wcslen(path.ptr) * 2]
+            s = path_slice.force_encoding(Encoding::UTF_16LE).encode(Encoding::UTF_8, invalid: :replace)
+            WindowsSys.CoTaskMemFree(path.ptr)
+            Pathname.new(s)
+          else
+            # Free any allocated memory even on failure. A null ptr is a no-op for `CoTaskMemFree`.
+            WindowsSys.CoTaskMemFree(path.ptr)
+            nil
+          end
+        end
+      else
+        def dir_crt(_env) = nil
       end
     end
   end

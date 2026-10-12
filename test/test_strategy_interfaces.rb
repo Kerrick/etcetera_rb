@@ -2,90 +2,42 @@
 
 require "test_helper"
 
-# The BaseStrategy interface is a guide to implementors, so its default
-# implementations raise, mirroring the crate's trait defaults.
-class TestBaseStrategyInterface < Minitest::Test
-  def test_home_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.home_dir }
+# Like the crate's traits, the interfaces can be implemented by your own
+# strategies; see "Custom Conventions" in the crate root documentation.
+class TestCustomAppStrategy < Minitest::Test
+  # A strategy that implements only the methods the _AppStrategy interface
+  # requires, and gets the in_*_dir methods from AppStrategy.
+  CUSTOM = Data.define(:home_dir) do
+    include Etcetera::AppStrategy
+
+    def config_dir = home_dir.join("config")
+    def data_dir = home_dir.join("data")
+    def cache_dir = home_dir.join("cache")
+    def state_dir = nil
+    def runtime_dir = home_dir.join("runtime")
   end
 
-  def test_config_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.config_dir }
+  def setup
+    @strategy = CUSTOM.new(home_dir: Pathname.new("/home"))
   end
 
-  def test_data_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.data_dir }
+  def test_in_config_dir
+    assert_equal Pathname.new("/home/config/foo/bar"), @strategy.in_config_dir("foo/bar")
   end
 
-  def test_cache_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.cache_dir }
+  def test_in_data_dir
+    assert_equal Pathname.new("/home/data/foo/bar"), @strategy.in_data_dir("foo/bar")
   end
 
-  def test_state_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.state_dir }
+  def test_in_cache_dir
+    assert_equal Pathname.new("/home/cache/foo/bar"), @strategy.in_cache_dir("foo/bar")
   end
 
-  def test_runtime_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.runtime_dir }
+  def test_in_state_dir_without_a_state_dir
+    assert_nil @strategy.in_state_dir("foo/bar")
   end
 
-  private
-
-  def strategy
-    @strategy ||= Class.new { include Etcetera::BaseStrategy }.new
-  end
-end
-
-# The AppStrategy interface is a guide to implementors, so its default
-# implementations raise, mirroring the crate's trait defaults.
-class TestAppStrategyInterface < Minitest::Test
-  def test_home_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.home_dir }
-  end
-
-  def test_config_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.config_dir }
-  end
-
-  def test_data_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.data_dir }
-  end
-
-  def test_cache_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.cache_dir }
-  end
-
-  def test_state_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.state_dir }
-  end
-
-  def test_runtime_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.runtime_dir }
-  end
-
-  def test_in_config_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.in_config_dir("foo/bar") }
-  end
-
-  def test_in_data_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.in_data_dir("foo/bar") }
-  end
-
-  def test_in_cache_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.in_cache_dir("foo/bar") }
-  end
-
-  def test_in_state_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.in_state_dir("foo/bar") }
-  end
-
-  def test_in_runtime_dir_must_be_implemented
-    assert_raises(NotImplementedError) { strategy.in_runtime_dir("foo/bar") }
-  end
-
-  private
-
-  def strategy
-    @strategy ||= Class.new { include Etcetera::AppStrategy }.new
+  def test_in_runtime_dir
+    assert_equal Pathname.new("/home/runtime/foo/bar"), @strategy.in_runtime_dir("foo/bar")
   end
 end

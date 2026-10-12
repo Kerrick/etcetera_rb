@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "fiddle"
-
 require "test_helper"
 
 # Ported from the crate's `Windows::dir_crt` example. With the environment
@@ -59,11 +57,11 @@ class TestBaseStrategyWindowsWithoutEnvironment < Minitest::Test
   # is exactly where APPDATA and LOCALAPPDATA point. Everywhere else the
   # strategy falls back to the Windows defaults under the home directory.
   def expected_roaming
-    windows_host? ? @appdata : @home.join("AppData/Roaming")
+    Gem.win_platform? ? @appdata : @home.join("AppData/Roaming")
   end
 
   def expected_local
-    windows_host? ? @localappdata : @home.join("AppData/Local")
+    Gem.win_platform? ? @localappdata : @home.join("AppData/Local")
   end
 end
 
@@ -86,13 +84,13 @@ class TestBaseStrategyWindowsEmptyEnvironment < Minitest::Test
   end
 
   def test_data_dir
-    expected = windows_host? ? @appdata : @home.join("AppData/Roaming")
+    expected = Gem.win_platform? ? @appdata : @home.join("AppData/Roaming")
 
     assert_equal windows_path(expected), windows_path(@strategy.data_dir)
   end
 
   def test_cache_dir
-    expected = windows_host? ? @localappdata : @home.join("AppData/Local")
+    expected = Gem.win_platform? ? @localappdata : @home.join("AppData/Local")
 
     assert_equal windows_path(expected), windows_path(@strategy.cache_dir)
   end
@@ -128,61 +126,53 @@ class TestBaseStrategyWindowsFromEnvironment < Minitest::Test
   end
 end
 
-# The pure half of the Known Folder bindings: GUID packing and UTF-16LE
-# decoding. They are checked on every platform, because a wrong byte order or
-# a wrong encoding is not something only a Windows run would notice.
-class TestKnownFolderBindings < Minitest::Test
-  include EtceteraTest
-
-  # FOLDERID_RoamingAppData and FOLDERID_LocalAppData, as the windows-sys
-  # version the crate uses defines them.
+# The windows-sys bindings, which only Windows loads, as only Windows builds of
+# the crate depend on windows-sys.
+class TestWindowsSys < Minitest::Test
+  # FOLDERID_RoamingAppData and FOLDERID_LocalAppData as they lie in memory.
   ROAMING_BYTES = "db85b63ef965f64ca03ae3ef65729f3d"
   LOCAL_BYTES = "8527b3f1ba6fcf4f9d557b8e7f157091"
 
-  def test_folder_ids_match_the_crate
-    assert_equal(
-      { "APPDATA" => "3EB685DB-65F9-4CF6-A03A-E3EF65729F3D",
-        "LOCALAPPDATA" => "F1B32785-6FBA-4FCF-9D55-7B8E7F157091" },
-      known_folders::FOLDER_IDS
-    )
+  def setup
+    skip "only Windows loads windows-sys" unless Gem.win_platform?
+
+    @windows_sys = Etcetera.const_get(:WindowsSys)
   end
 
-  def test_packs_the_roaming_app_data_guid
-    assert_equal ROAMING_BYTES, packed(known_folders::FOLDER_IDS["APPDATA"])
+  def test_roaming_app_data_guid
+    assert_equal ROAMING_BYTES, bytes(@windows_sys::FOLDERID_RoamingAppData)
   end
 
-  def test_packs_the_local_app_data_guid
-    assert_equal LOCAL_BYTES, packed(known_folders::FOLDER_IDS["LOCALAPPDATA"])
-  end
-
-  def test_decodes_a_utf16le_path
-    assert_equal "C:\\Users\\runner", wide("C:\\Users\\runner")
-  end
-
-  def test_decodes_a_non_ascii_path
-    assert_equal "C:\\Users\\Ünïcødé", wide("C:\\Users\\Ünïcødé")
-  end
-
-  def test_decodes_an_empty_string
-    assert_equal "", wide("")
-  end
-
-  def test_path_for_is_nil_off_windows
-    skip "the Known Folder API is available here" if windows_host?
-
-    assert_nil known_folders.path_for(known_folders::FOLDER_IDS["APPDATA"])
+  def test_local_app_data_guid
+    assert_equal LOCAL_BYTES, bytes(@windows_sys::FOLDERID_LocalAppData)
   end
 
   private
 
-  def packed(folder_id)
-    known_folders.send(:pack_guid, folder_id).unpack1("H*")
+  def bytes(guid) = guid.to_ptr[0, @windows_sys::GUID.size].unpack1("H*")
+end
+
+# The C runtime's wcslen, which the crate declares for itself.
+class TestCRT < Minitest::Test
+  def setup
+    skip "only Windows binds wcslen" unless Gem.win_platform?
+
+    @crt = Etcetera::BaseStrategy.const_get(:CRT)
   end
 
-  def wide(text)
-    buffer = text.encode(Encoding::UTF_16LE).b + "\x00\x00".b
+  def test_wcslen_counts_utf16_code_units
+    buffer = "C:\\Users\\Ünïcødé".encode(Encoding::UTF_16LE).b + "\x00\x00".b
 
-    known_folders.send(:wide_string, Fiddle::Pointer[buffer])
+    assert_equal 16, @crt.wcslen(Fiddle::Pointer[buffer])
+  end
+end
+
+# Like the crate, only Windows has a Known Folder API to ask.
+class TestBaseStrategyWindowsDirCrt < Minitest::Test
+  def test_dir_crt_is_nil_off_windows
+    skip "the Known Folder API is available here" if Gem.win_platform?
+
+    assert_nil Etcetera::BaseStrategy::Windows.new.send(:dir_crt, "APPDATA")
   end
 end
 
@@ -191,15 +181,18 @@ end
 class TestBaseStrategyWindowsApiResults < Minitest::Test
   include EtceteraTest
 
-  STUBBED = {
-    "3EB685DB-65F9-4CF6-A03A-E3EF65729F3D" => "C:/stubbed/Roaming",
-    "F1B32785-6FBA-4FCF-9D55-7B8E7F157091" => "C:/stubbed/Local"
-  }.freeze
+  STUBBED = Class.new(Etcetera::BaseStrategy::Windows) do
+    private def dir_crt(env)
+      { "APPDATA" => "C:/stubbed/Roaming", "LOCALAPPDATA" => "C:/stubbed/Local" }[env]&.then do
+        Pathname.new(it)
+      end
+    end
+  end
 
   def setup
     snapshot_env
     clear_strategy_env
-    @strategy = Etcetera::BaseStrategy::Windows.new
+    @strategy = STUBBED.new
   end
 
   def teardown
@@ -207,30 +200,18 @@ class TestBaseStrategyWindowsApiResults < Minitest::Test
   end
 
   def test_data_dir_comes_from_the_api
-    with_api do
-      assert_equal Pathname.new("C:/stubbed/Roaming"), @strategy.data_dir
-      assert_equal Pathname.new("C:/stubbed/Roaming"), @strategy.config_dir
-    end
+    assert_equal Pathname.new("C:/stubbed/Roaming"), @strategy.data_dir
+    assert_equal Pathname.new("C:/stubbed/Roaming"), @strategy.config_dir
   end
 
   def test_cache_dir_comes_from_the_api
-    with_api do
-      assert_equal Pathname.new("C:/stubbed/Local"), @strategy.cache_dir
-    end
+    assert_equal Pathname.new("C:/stubbed/Local"), @strategy.cache_dir
   end
 
   def test_the_environment_still_wins
     apply_env("APPDATA" => absolute("/from_env"))
 
-    with_api do
-      assert_equal Pathname.new(absolute("/from_env")), @strategy.data_dir
-    end
-  end
-
-  private
-
-  def with_api(&block)
-    known_folders.stub(:path_for, ->(folder_id) { STUBBED[folder_id] }, &block)
+    assert_equal Pathname.new(absolute("/from_env")), @strategy.data_dir
   end
 end
 
@@ -241,7 +222,7 @@ class TestBaseStrategyWindowsKnownFolderApi < Minitest::Test
   include EtceteraTest
 
   def setup
-    skip "the Known Folder API only exists on Windows" unless windows_host?
+    skip "the Known Folder API only exists on Windows" unless Gem.win_platform?
 
     snapshot_env
     @appdata = ENV["APPDATA"]

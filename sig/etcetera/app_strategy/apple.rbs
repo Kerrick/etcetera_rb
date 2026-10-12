@@ -1,11 +1,10 @@
 module Etcetera
   module AppStrategy
     class Apple < Data
-      include Etcetera::AppStrategy
-      include Comparable
+      include AppStrategy
+      include _AppStrategy
 
       def self.new: (AppStrategyArgs args) -> instance
-      def <=>: (untyped other) -> Integer?
 
       private
 

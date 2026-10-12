@@ -57,7 +57,6 @@ module Etcetera
     #   app_strategy.runtime_dir # => nil
     Windows = Data.define(:base_strategy, :author_app_name_path) do
       include AppStrategy
-      include FieldOrder
 
       class << self
         alias_method :from_fields, :new

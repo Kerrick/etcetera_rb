@@ -22,7 +22,6 @@ module Etcetera
     #   app_strategy.runtime_dir # => nil
     Apple = Data.define(:base_strategy, :bundle_id) do
       include AppStrategy
-      include FieldOrder
 
       class << self
         alias_method :from_fields, :new

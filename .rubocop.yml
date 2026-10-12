@@ -12,3 +12,11 @@ Style/StringLiteralsInInterpolation:
 Layout/LineLength:
   AllowedPatterns:
     - '\A\s*#'
+
+# Like rustfmt's use_field_init_shorthand.
+Style/HashSyntax:
+  EnforcedShorthandSyntax: always
+
+# Like Clippy, whose too_many_lines lint is pedantic and off by default.
+Metrics/MethodLength:
+  Enabled: false

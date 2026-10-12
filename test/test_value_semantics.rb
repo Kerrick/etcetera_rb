@@ -2,8 +2,8 @@
 
 require "test_helper"
 
-# The crate derives Debug, Clone, PartialEq, Eq, PartialOrd, Ord and Hash on
-# every strategy; Data and FieldOrder provide the same here.
+# The crate derives Debug, Clone, PartialEq, Eq and Hash on every strategy, and
+# Data provides the same here.
 class TestValueSemantics < Minitest::Test
   include EtceteraTest
 
@@ -34,25 +34,14 @@ class TestValueSemantics < Minitest::Test
     end
   end
 
-  def test_strategies_are_ordered
-    strategies.each do |klass, build|
-      first = build.call
-      second = build.call
-
-      assert_equal 0, first <=> second, klass.name
-    end
-  end
-
-  def test_strategies_of_different_kinds_are_neither_equal_nor_ordered
+  def test_strategies_of_different_kinds_are_not_equal
     refute_equal Etcetera::BaseStrategy::Apple.new, Etcetera::BaseStrategy::Xdg.new
-    assert_nil Etcetera::BaseStrategy::Apple.new <=> Etcetera::BaseStrategy::Xdg.new
   end
 
   def test_different_apps_are_different_strategies
     other = Etcetera::AppStrategyArgs.new(top_level_domain: "org", author: "Acme Corp", app_name: "Other")
 
     refute_equal Etcetera::AppStrategy::Xdg.new(acme_args), Etcetera::AppStrategy::Xdg.new(other)
-    assert_operator Etcetera::AppStrategy::Xdg.new(acme_args), :<, Etcetera::AppStrategy::Xdg.new(other)
   end
 
   def test_strategies_are_inspectable

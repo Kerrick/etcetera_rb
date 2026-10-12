@@ -1,14 +1,34 @@
 module Etcetera
   # Provides configuration, data, and cache directories of the current user.
+  interface _BaseStrategy
+    # Gets the home directory of the current user.
+    def home_dir: () -> Pathname
+
+    # Gets the user’s configuration directory.
+    def config_dir: () -> Pathname
+
+    # Gets the user’s data directory.
+    def data_dir: () -> Pathname
+
+    # Gets the user’s cache directory.
+    def cache_dir: () -> Pathname
+
+    # Gets the user’s state directory.
+    # Currently, only the Xdg strategy supports this.
+    def state_dir: () -> Pathname?
+
+    # Gets the user’s runtime directory.
+    # Currently, only the Xdg strategy supports this.
+    #
+    # Note: The XDG Base Directory Specification places additional requirements on this
+    # directory related to ownership, permissions, and persistence. This library does not check
+    # these requirements.
+    def runtime_dir: () -> Pathname?
+  end
+
+  # These strategies simply provide the user’s configuration, data, and cache directories, without knowing about the application specifically.
   module BaseStrategy
     def self.choose_native_strategy: () -> native_base_strategy
     def self.choose_base_strategy: () -> default_base_strategy
-
-    def home_dir: () -> Pathname
-    def config_dir: () -> Pathname
-    def data_dir: () -> Pathname
-    def cache_dir: () -> Pathname
-    def state_dir: () -> Pathname?
-    def runtime_dir: () -> Pathname?
   end
 end

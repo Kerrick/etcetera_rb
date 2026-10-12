@@ -41,17 +41,6 @@ module EtceteraTest
     pairs.each { |name, value| ENV[name] = value }
   end
 
-  def windows_host?
-    RUBY_PLATFORM.match?(/mswin|mingw|cygwin/)
-  end
-
-  # The Known Folder bindings are private to the Windows strategy. The pure
-  # half of them is reached directly so that every platform can check them
-  # instead of leaving them to the Windows job.
-  def known_folders
-    Etcetera::BaseStrategy.const_get(:KnownFolders)
-  end
-
   # The environment and the Known Folder API spell the same Windows directory
   # different ways, so compare them normalized.
   def windows_path(path)
@@ -61,7 +50,7 @@ module EtceteraTest
   # Makes a path absolute in a way this platform accepts, mirroring the
   # conditional paths in the crate's documentation examples.
   def absolute(path)
-    windows_host? ? "C:#{path}" : path
+    Gem.win_platform? ? "C:#{path}" : path
   end
 
   # The application used throughout the crate's documentation examples.
