@@ -59,3 +59,14 @@ jobs:
       - run: bundle exec rake test
 
       - run: bundle exec rbs -I sig validate
+
+      - run: gem build etcetera.gemspec --output ${{ runner.temp }}/etcetera.gem
+
+      - run: gem install --local ${{ runner.temp }}/etcetera.gem
+        env:
+          GEM_HOME: ${{ runner.temp }}/gems
+
+      - run: ruby ${{ github.workspace }}/test/installed_gem.rb
+        working-directory: ${{ runner.temp }}
+        env:
+          GEM_HOME: ${{ runner.temp }}/gems

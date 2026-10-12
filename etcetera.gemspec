@@ -19,7 +19,6 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 4.0.0"
   spec.licenses = ["MIT", "Apache-2.0"]
 
-  spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage
   spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/ruby/CHANGELOG.md"
   spec.metadata["documentation_uri"] = "https://rubydoc.info/gems/etcetera"

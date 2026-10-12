@@ -63,7 +63,7 @@ require_relative "etcetera/app_strategy/xdg"
 #
 # == Native Strategy
 #
-# +choose_base_strategy+ and +choose_app_strategy+ will use the +XDG+ strategy on Linux & macOS, and the +Windows+ strategy on Windows.
+# +choose_base_strategy+ and +choose_app_strategy+ will use the +XDG+ strategy on Linux & macOS, and the +Windows+ strategy on \Windows.
 # This is used by most CLI tools & some GUI tools on each platform.
 #
 # If you're developing a GUI application, you might want to use the "Standard directories" on macOS by using +choose_native_strategy+ instead.
@@ -74,7 +74,7 @@ require_relative "etcetera/app_strategy/xdg"
 # You aren’t limited to the built-in conventions – you can implement the relevant modules yourself. Please consider contributing these back, as the more preset conventions there are, the better.
 #
 # = More Examples
-# Say you were a hardened Unix veteran, and didn’t want to have any of this XDG nonsense, clutter in the home directory be damned! Instead of using +choose_app_strategy+ or +choose_base_strategy+, you can pick a strategy yourself. Here’s an example using the {Unix}[rdoc-ref:Etcetera::AppStrategy::Unix] strategy – see its documentation to see what kind of folder structures it produces:
+# Say you were a hardened Unix veteran, and didn’t want to have any of this XDG nonsense, clutter in the home directory be damned! Instead of using +choose_app_strategy+ or +choose_base_strategy+, you can pick a strategy yourself. Here’s an example using the AppStrategy::Unix strategy – see its documentation to see what kind of folder structures it produces:
 #
 #   require "etcetera"
 #
@@ -87,7 +87,7 @@ require_relative "etcetera/app_strategy/xdg"
 #   config_dir = strategy.config_dir # produces ~/.wry/
 #   # et cetera.
 #
-# Oftentimes the location of a configuration, data or cache directory is needed solely to create a path that starts inside it. For this purpose, {AppStrategy}[rdoc-ref:Etcetera::AppStrategy] implements a couple of convenience methods for you:
+# Oftentimes the location of a configuration, data or cache directory is needed solely to create a path that starts inside it. For this purpose, AppStrategy implements a couple of convenience methods for you:
 #
 #   require "etcetera"
 #
@@ -121,13 +121,13 @@ module Etcetera
     end
   end
 
-  # Returns the current OS’s default {BaseStrategy}[rdoc-ref:Etcetera::BaseStrategy].
-  # This uses the {Windows}[rdoc-ref:Etcetera::BaseStrategy::Windows] strategy on Windows, and {Xdg}[rdoc-ref:Etcetera::BaseStrategy::Xdg] everywhere else.
+  # Returns the current OS’s default BaseStrategy.
+  # This uses the BaseStrategy::Windows strategy on \Windows, and BaseStrategy::Xdg everywhere else.
   # This is the convention used by most CLI applications.
   def self.choose_base_strategy = BaseStrategy.choose_base_strategy
 
-  # Returns the current OS’s default {AppStrategy}[rdoc-ref:Etcetera::AppStrategy].
-  # This uses the {Windows}[rdoc-ref:Etcetera::AppStrategy::Windows] strategy on Windows, and {Xdg}[rdoc-ref:Etcetera::AppStrategy::Xdg] everywhere else.
+  # Returns the current OS’s default AppStrategy.
+  # This uses the AppStrategy::Windows strategy on \Windows, and AppStrategy::Xdg everywhere else.
   # This is the convention used by most CLI applications.
   def self.choose_app_strategy(args) = AppStrategy.choose_app_strategy(args)
 end

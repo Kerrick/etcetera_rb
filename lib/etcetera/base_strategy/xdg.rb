@@ -74,7 +74,7 @@ module Etcetera
     #   base_strategy.state_dir.relative_path_from(home_dir) # => #<Pathname:.local/state>
     #   base_strategy.runtime_dir # => nil
     class Xdg < Data.define(:home_dir)
-      # Create a new Xdg BaseStrategy
+      # Create a new \Xdg \BaseStrategy
       def initialize(home_dir: Etcetera.home_dir) = super
 
       def config_dir = env_var_or_default("XDG_CONFIG_HOME", ".config/")

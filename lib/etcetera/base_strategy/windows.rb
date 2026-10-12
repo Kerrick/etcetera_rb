@@ -15,16 +15,16 @@ module Etcetera
       private_constant :CRT
     end
 
-    # This strategy follows Windows’ conventions. It seems that all Windows GUI apps, and some command-line ones follow this pattern. The specification is available {here}[https://docs.microsoft.com/en-us/windows/win32/shell/knownfolderid].
+    # This strategy follows Windows’ conventions. It seems that all \Windows GUI apps, and some command-line ones follow this pattern. The specification is available {here}[https://docs.microsoft.com/en-us/windows/win32/shell/knownfolderid].
     #
     # This initial example removes all the relevant environment variables to show the strategy’s use of the:
-    # - (on Windows) SHGetKnownFolderPath API.
-    # - (on non-Windows) Windows default directories.
+    # - (on \Windows) SHGetKnownFolderPath API.
+    # - (on non-Windows) \Windows default directories.
     #
     #   require "etcetera"
     #
     #   # Remove the environment variables that the strategy reads from.
-    #   ENV.delete("USERPROFILE")
+    #   ENV.delete("HOME")
     #   ENV.delete("APPDATA")
     #   ENV.delete("LOCALAPPDATA")
     #
@@ -44,11 +44,11 @@ module Etcetera
     #   require "etcetera"
     #
     #   windows = Gem.win_platform?
-    #   home_path = windows ? "C:\\foo\\" : Etcetera.home_dir.to_s
+    #   home_path = windows ? "C:/foo/" : Etcetera.home_dir.to_s
     #   data_path = windows ? "C:\\bar\\" : "/bar/"
     #   cache_path = windows ? "C:\\baz\\" : "/baz/"
     #
-    #   ENV["USERPROFILE"] = home_path
+    #   ENV["HOME"] = home_path
     #   ENV["APPDATA"] = data_path
     #   ENV["LOCALAPPDATA"] = cache_path
     #
@@ -61,7 +61,7 @@ module Etcetera
     #   base_strategy.state_dir # => nil
     #   base_strategy.runtime_dir # => nil
     class Windows < Data.define(:home_dir)
-      # Create a new Windows BaseStrategy
+      # Create a new \Windows \BaseStrategy
       def initialize(home_dir: Etcetera.home_dir) = super
 
       def config_dir = data_dir

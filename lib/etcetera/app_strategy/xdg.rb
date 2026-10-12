@@ -88,7 +88,7 @@ module Etcetera
     class Xdg < Data.define(:base_strategy, :unixy_name)
       include AppStrategy
 
-      # Create a new Xdg AppStrategy
+      # Create a new \Xdg \AppStrategy
       def self.new(args) = super(base_strategy: BaseStrategy::Xdg.new, unixy_name: args.unixy_name)
 
       private :base_strategy, :unixy_name

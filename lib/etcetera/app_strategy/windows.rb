@@ -2,16 +2,16 @@
 
 module Etcetera
   module AppStrategy
-    # This strategy follows Windows’ conventions. It seems that all Windows GUI apps, and some command-line ones follow this pattern. The specification is available {here}[https://docs.microsoft.com/en-us/windows/win32/shell/knownfolderid].
+    # This strategy follows Windows’ conventions. It seems that all \Windows GUI apps, and some command-line ones follow this pattern. The specification is available {here}[https://docs.microsoft.com/en-us/windows/win32/shell/knownfolderid].
     #
     # This initial example removes all the relevant environment variables to show the strategy’s use of the:
-    # - (on Windows) SHGetKnownFolderPath API.
-    # - (on non-Windows) Windows default directories.
+    # - (on \Windows) SHGetKnownFolderPath API.
+    # - (on non-Windows) \Windows default directories.
     #
     #   require "etcetera"
     #
     #   # Remove the environment variables that the strategy reads from.
-    #   ENV.delete("USERPROFILE")
+    #   ENV.delete("HOME")
     #   ENV.delete("APPDATA")
     #   ENV.delete("LOCALAPPDATA")
     #
@@ -35,11 +35,11 @@ module Etcetera
     #   require "etcetera"
     #
     #   windows = Gem.win_platform?
-    #   home_path = windows ? "C:\\my_home_location\\" : Etcetera.home_dir.to_s
+    #   home_path = windows ? "C:/my_home_location/" : Etcetera.home_dir.to_s
     #   data_path = windows ? "C:\\my_data_location\\" : "/my_data_location/"
     #   cache_path = windows ? "C:\\my_cache_location\\" : "/my_cache_location/"
     #
-    #   ENV["USERPROFILE"] = home_path
+    #   ENV["HOME"] = home_path
     #   ENV["APPDATA"] = data_path
     #   ENV["LOCALAPPDATA"] = cache_path
     #
@@ -58,7 +58,7 @@ module Etcetera
     class Windows < Data.define(:base_strategy, :author_app_name_path)
       include AppStrategy
 
-      # Create a new Windows AppStrategy
+      # Create a new \Windows \AppStrategy
       def self.new(args)
         super(
           base_strategy: BaseStrategy::Windows.new,

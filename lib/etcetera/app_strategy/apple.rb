@@ -2,7 +2,7 @@
 
 module Etcetera
   module AppStrategy
-    # This is the strategy created by Apple for use on macOS and iOS devices. It is always used by GUI apps on macOS, and is sometimes used by command-line applications there too. iOS only has GUIs, so all iOS applications follow this strategy. The specification is available {here}[https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW1].
+    # This is the strategy created by \Apple for use on macOS and iOS devices. It is always used by GUI apps on macOS, and is sometimes used by command-line applications there too. iOS only has GUIs, so all iOS applications follow this strategy. The specification is available {here}[https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW1].
     #
     #   require "etcetera"
     #
@@ -23,7 +23,7 @@ module Etcetera
     class Apple < Data.define(:base_strategy, :bundle_id)
       include AppStrategy
 
-      # Create a new Apple AppStrategy
+      # Create a new \Apple \AppStrategy
       def self.new(args) = super(base_strategy: BaseStrategy::Apple.new, bundle_id: args.bundle_id)
 
       private :base_strategy, :bundle_id

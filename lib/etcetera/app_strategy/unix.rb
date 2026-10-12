@@ -27,7 +27,7 @@ module Etcetera
     )
       include AppStrategy
 
-      # Create a new Unix AppStrategy
+      # Create a new \Unix \AppStrategy
       def self.new(args) = super(home_dir: Etcetera.home_dir, unixy_name: ".#{args.unixy_name}")
 
       private :unixy_name

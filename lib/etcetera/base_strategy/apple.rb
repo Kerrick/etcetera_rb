@@ -2,7 +2,7 @@
 
 module Etcetera
   module BaseStrategy
-    # This is the strategy created by Apple for use on macOS and iOS devices. It is always used by GUI apps on macOS, and is sometimes used by command-line applications there too. iOS only has GUIs, so all iOS applications follow this strategy. The specification is available {here}[https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW1].
+    # This is the strategy created by \Apple for use on macOS and iOS devices. It is always used by GUI apps on macOS, and is sometimes used by command-line applications there too. iOS only has GUIs, so all iOS applications follow this strategy. The specification is available {here}[https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW1].
     #
     #   require "etcetera"
     #
@@ -17,7 +17,7 @@ module Etcetera
     #   base_strategy.state_dir # => nil
     #   base_strategy.runtime_dir # => nil
     class Apple < Data.define(:home_dir)
-      # Create a new Apple BaseStrategy
+      # Create a new \Apple \BaseStrategy
       def initialize(home_dir: Etcetera.home_dir) = super
 
       def config_dir = home_dir.join("Library/Preferences/")
