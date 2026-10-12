@@ -43,9 +43,15 @@ class TestAppStrategyArgs < Minitest::Test
     assert_equal "Frobnicator Plus", acme_args.app_name
   end
 
-  def test_all_keywords_are_required
-    assert_raises(ArgumentError) do
-      Etcetera::AppStrategyArgs.new(top_level_domain: "org")
-    end
+  # The crate derives Default, so every field defaults to an empty string.
+  def test_keywords_default_to_empty_strings
+    assert_equal Etcetera::AppStrategyArgs.new(top_level_domain: "", author: "", app_name: ""),
+                 Etcetera::AppStrategyArgs.new
+  end
+
+  def test_value_semantics
+    assert_equal acme_args, acme_args
+    assert_equal acme_args.hash, acme_args.hash
+    assert_operator Etcetera::AppStrategyArgs.new(top_level_domain: "com"), :<, acme_args
   end
 end

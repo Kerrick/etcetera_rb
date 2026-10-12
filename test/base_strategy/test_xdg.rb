@@ -22,19 +22,19 @@ class TestBaseStrategyXdgDefaults < Minitest::Test
   end
 
   def test_config_dir
-    assert_equal @home.join(".config"), @strategy.config_dir
+    assert_equal Pathname.new(".config"), @strategy.config_dir.relative_path_from(Etcetera.home_dir)
   end
 
   def test_data_dir
-    assert_equal @home.join(".local/share"), @strategy.data_dir
+    assert_equal Pathname.new(".local/share"), @strategy.data_dir.relative_path_from(Etcetera.home_dir)
   end
 
   def test_cache_dir
-    assert_equal @home.join(".cache"), @strategy.cache_dir
+    assert_equal Pathname.new(".cache"), @strategy.cache_dir.relative_path_from(Etcetera.home_dir)
   end
 
   def test_state_dir
-    assert_equal @home.join(".local/state"), @strategy.state_dir
+    assert_equal Pathname.new(".local/state"), @strategy.state_dir.relative_path_from(Etcetera.home_dir)
   end
 
   def test_runtime_dir_is_unsupported_without_the_variable
@@ -106,19 +106,19 @@ class TestBaseStrategyXdgRelativeEnvironment < Minitest::Test
   end
 
   def test_config_dir
-    assert_equal @home.join(".config"), @strategy.config_dir
+    assert_equal Pathname.new(".config"), @strategy.config_dir.relative_path_from(Etcetera.home_dir)
   end
 
   def test_data_dir
-    assert_equal @home.join(".local/share"), @strategy.data_dir
+    assert_equal Pathname.new(".local/share"), @strategy.data_dir.relative_path_from(Etcetera.home_dir)
   end
 
   def test_cache_dir
-    assert_equal @home.join(".cache"), @strategy.cache_dir
+    assert_equal Pathname.new(".cache"), @strategy.cache_dir.relative_path_from(Etcetera.home_dir)
   end
 
   def test_state_dir
-    assert_equal @home.join(".local/state"), @strategy.state_dir
+    assert_equal Pathname.new(".local/state"), @strategy.state_dir.relative_path_from(Etcetera.home_dir)
   end
 
   def test_runtime_dir
@@ -141,6 +141,6 @@ class TestBaseStrategyXdgEmptyEnvironment < Minitest::Test
   end
 
   def test_config_dir
-    assert_equal Etcetera.home_dir.join(".config"), @strategy.config_dir
+    assert_equal Pathname.new(".config"), @strategy.config_dir.relative_path_from(Etcetera.home_dir)
   end
 end

@@ -49,7 +49,7 @@ module EtceteraTest
   # half of them is reached directly so that every platform can check them
   # instead of leaving them to the Windows job.
   def known_folders
-    Etcetera::BaseStrategy::Windows.const_get(:KnownFolders)
+    Etcetera::BaseStrategy.const_get(:KnownFolders)
   end
 
   # The environment and the Known Folder API spell the same Windows directory

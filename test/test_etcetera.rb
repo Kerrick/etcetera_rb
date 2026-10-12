@@ -28,41 +28,22 @@ class TestEtcetera < Minitest::Test
     end
   end
 
-  # The crate falls back to getpwuid when HOME is set but empty, while
-  # Dir.home reports the empty string; Etcetera does the lookup itself.
-  def test_home_dir_falls_back_to_the_password_database_when_home_is_empty
-    skip "Windows has no password database to fall back to" if windows_host?
-
-    snapshot_env
-    apply_env("HOME" => "")
-
-    assert_equal Pathname.new(Etc.getpwuid(Process.uid).dir), Etcetera.home_dir
-  ensure
-    restore_env
-  end
-
-  # Dir.home takes an empty HOME at its word on Windows, while the crate reads
-  # USERPROFILE first; see the README.
-  def test_home_dir_raises_when_home_is_empty_on_windows
-    skip "only Windows takes an empty HOME at its word" unless windows_host?
-
-    snapshot_env
-    apply_env("HOME" => "")
-
-    assert_raises(Etcetera::HomeDirError) { Etcetera.home_dir }
-  ensure
-    restore_env
-  end
-
-  # Like the crate, an unset HOME is not an error on platforms that have a
-  # password database.
-  def test_home_dir_falls_back_to_the_password_database_when_home_is_unset
-    skip "Windows has no password database to fall back to" if windows_host?
-
+  # The crate wraps the standard library's home_dir, so this wraps Dir.home and
+  # follows it wherever HOME leads.
+  def test_home_dir_follows_dir_home_when_home_is_unset
     snapshot_env
     ENV.delete("HOME")
 
-    assert_equal Pathname.new(Etc.getpwuid(Process.uid).dir), Etcetera.home_dir
+    assert_equal Pathname.new(Dir.home), Etcetera.home_dir
+  ensure
+    restore_env
+  end
+
+  def test_home_dir_follows_dir_home_when_home_is_empty
+    snapshot_env
+    apply_env("HOME" => "")
+
+    assert_equal Pathname.new(Dir.home), Etcetera.home_dir
   ensure
     restore_env
   end

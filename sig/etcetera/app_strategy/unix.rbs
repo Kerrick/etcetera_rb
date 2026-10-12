@@ -1,9 +1,15 @@
 module Etcetera
   module AppStrategy
-    class Unix
+    class Unix < Data
       include Etcetera::AppStrategy
+      include Comparable
 
-      def initialize: (AppStrategyArgs args) -> void
+      def self.new: (AppStrategyArgs args) -> instance
+      def <=>: (untyped other) -> Integer?
+
+      private
+
+      attr_reader unixy_name: String
     end
   end
 end

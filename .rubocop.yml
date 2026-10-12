@@ -1,8 +1,14 @@
 AllCops:
-  TargetRubyVersion: 3.3
+  TargetRubyVersion: 4.0
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes
+
+# Like rustfmt, which leaves the crate's comments unwrapped, only code is held
+# to a line length.
+Layout/LineLength:
+  AllowedPatterns:
+    - '\A\s*#'

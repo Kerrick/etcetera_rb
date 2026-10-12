@@ -3,12 +3,16 @@ module Etcetera
   # directories specifically for them.
   module AppStrategy
     # The arguments to the creator method of an AppStrategy.
-    class AppStrategyArgs
+    class AppStrategyArgs < Data
+      include Comparable
+
       attr_reader top_level_domain: String
       attr_reader author: String
       attr_reader app_name: String
 
-      def initialize: (top_level_domain: String, author: String, app_name: String) -> void
+      def self.new: (?top_level_domain: String, ?author: String, ?app_name: String) -> instance
+      def initialize: (?top_level_domain: String, ?author: String, ?app_name: String) -> void
+      def <=>: (untyped other) -> Integer?
 
       def bundle_id: () -> String
       def unixy_name: () -> String

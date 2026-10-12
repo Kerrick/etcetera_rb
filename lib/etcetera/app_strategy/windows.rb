@@ -1,96 +1,95 @@
 # frozen_string_literal: true
 
-require "pathname"
-
-require_relative "../app_strategy"
-require_relative "../base_strategy/windows"
-
 module Etcetera
   module AppStrategy
-    # This strategy follows Windows' conventions. It seems that all Windows GUI
-    # apps, and some command-line ones follow this pattern. The specification is
-    # available here
-    # (https://docs.microsoft.com/en-us/windows/win32/shell/knownfolderid).
+    # This strategy follows Windows’ conventions. It seems that all Windows GUI apps, and some command-line ones follow this pattern. The specification is available {here}[https://docs.microsoft.com/en-us/windows/win32/shell/knownfolderid].
     #
-    # This initial example removes the environment variables the strategy
-    # reads:
+    # This initial example removes all the relevant environment variables to show the strategy’s use of the:
+    # - (on Windows) SHGetKnownFolderPath API.
+    # - (on non-Windows) Windows default directories.
     #
-    # * (on Windows) the Known Folder API supplies the parent directories.
-    # * (on non-Windows) the Windows default directories are used.
+    #   require "etcetera"
     #
-    #   %w[APPDATA LOCALAPPDATA].each { |name| ENV.delete(name) }
+    #   # Remove the environment variables that the strategy reads from.
+    #   ENV.delete("USERPROFILE")
+    #   ENV.delete("APPDATA")
+    #   ENV.delete("LOCALAPPDATA")
     #
-    #   args = Etcetera::AppStrategy::AppStrategyArgs.new(
+    #   app_strategy = Etcetera::AppStrategy::Windows.new(Etcetera::AppStrategy::AppStrategyArgs.new(
     #     top_level_domain: "org",
     #     author: "Acme Corp",
     #     app_name: "Frobnicator Plus"
-    #   )
-    #   app_strategy = Etcetera::AppStrategy::Windows.new(args)
+    #   ))
+    #
     #   home_dir = Etcetera.home_dir
     #
-    #   app_strategy.home_dir    # => home_dir
-    #   app_strategy.config_dir  # => RoamingAppData/Acme Corp/Frobnicator Plus/config
-    #                            #    on Windows, home_dir.join(
-    #                            #    "AppData/Roaming/Acme Corp/Frobnicator Plus/config")
-    #                            #    elsewhere
-    #   app_strategy.data_dir    # => the same, with "data" instead of "config"
-    #   app_strategy.cache_dir   # => LocalAppData/Acme Corp/Frobnicator Plus/cache
-    #                            #    on Windows, home_dir.join(
-    #                            #    "AppData/Local/Acme Corp/Frobnicator Plus/cache")
-    #                            #    elsewhere
-    #   app_strategy.state_dir   # => nil
+    #   app_strategy.home_dir == home_dir # => true
+    #   app_strategy.config_dir.relative_path_from(home_dir) # => #<Pathname:AppData/Roaming/Acme Corp/Frobnicator Plus/config>
+    #   app_strategy.data_dir.relative_path_from(home_dir) # => #<Pathname:AppData/Roaming/Acme Corp/Frobnicator Plus/data>
+    #   app_strategy.cache_dir.relative_path_from(home_dir) # => #<Pathname:AppData/Local/Acme Corp/Frobnicator Plus/cache>
+    #   app_strategy.state_dir # => nil
     #   app_strategy.runtime_dir # => nil
     #
     # This next example gives the environment variables values:
     #
-    #   ENV["APPDATA"]      = "C:/my_data_location"
-    #   ENV["LOCALAPPDATA"] = "C:/my_cache_location"
+    #   require "etcetera"
     #
-    #   args = Etcetera::AppStrategy::AppStrategyArgs.new(
+    #   windows = Gem.win_platform?
+    #   home_path = windows ? "C:\\my_home_location\\" : Etcetera.home_dir.to_s
+    #   data_path = windows ? "C:\\my_data_location\\" : "/my_data_location/"
+    #   cache_path = windows ? "C:\\my_cache_location\\" : "/my_cache_location/"
+    #
+    #   ENV["USERPROFILE"] = home_path
+    #   ENV["APPDATA"] = data_path
+    #   ENV["LOCALAPPDATA"] = cache_path
+    #
+    #   app_strategy = Etcetera::AppStrategy::Windows.new(Etcetera::AppStrategy::AppStrategyArgs.new(
     #     top_level_domain: "org",
     #     author: "Acme Corp",
     #     app_name: "Frobnicator Plus"
-    #   )
-    #   app_strategy = Etcetera::AppStrategy::Windows.new(args)
+    #   ))
     #
-    #   app_strategy.config_dir # => Pathname.new("C:/my_data_location/Acme Corp/Frobnicator Plus/config")
-    #   app_strategy.data_dir   # => Pathname.new("C:/my_data_location/Acme Corp/Frobnicator Plus/data")
-    #   app_strategy.cache_dir  # => Pathname.new("C:/my_cache_location/Acme Corp/Frobnicator Plus/cache")
-    #   app_strategy.state_dir  # => nil
+    #   app_strategy.home_dir == Pathname.new(home_path) # => true
+    #   app_strategy.config_dir == Pathname.new("#{data_path}Acme Corp/Frobnicator Plus/config") # => true
+    #   app_strategy.data_dir == Pathname.new("#{data_path}Acme Corp/Frobnicator Plus/data") # => true
+    #   app_strategy.cache_dir == Pathname.new("#{cache_path}Acme Corp/Frobnicator Plus/cache") # => true
+    #   app_strategy.state_dir # => nil
     #   app_strategy.runtime_dir # => nil
-    class Windows
-      include Etcetera::AppStrategy
+    Windows = Data.define(:base_strategy, :author_app_name_path) do
+      include AppStrategy
+      include FieldOrder
 
-      # Create a new Windows app strategy.
-      #
-      # Raises Etcetera::HomeDirError if the home directory cannot be located.
-      def initialize(args)
-        @base_strategy = Etcetera::BaseStrategy::Windows.new
-        @author_app_name_path = Pathname.new(args.author).join(args.app_name)
+      class << self
+        alias_method :from_fields, :new
+        private :from_fields
+
+        # Create a new Windows AppStrategy
+        def new(args)
+          from_fields(
+            base_strategy: BaseStrategy::Windows.new,
+            author_app_name_path: Pathname.new(args.author).join(args.app_name)
+          )
+        end
       end
 
-      def home_dir
-        @base_strategy.home_dir
-      end
+      private :base_strategy, :author_app_name_path
 
-      def config_dir
-        @base_strategy.config_dir.join(@author_app_name_path).join("config")
-      end
+      def home_dir = base_strategy.home_dir
 
-      def data_dir
-        @base_strategy.data_dir.join(@author_app_name_path).join("data")
-      end
+      def config_dir = dir_method(:config_dir, "config")
 
-      def cache_dir
-        @base_strategy.cache_dir.join(@author_app_name_path).join("cache")
-      end
+      def data_dir = dir_method(:data_dir, "data")
 
-      def state_dir
-        nil
-      end
+      def cache_dir = dir_method(:cache_dir, "cache")
 
-      def runtime_dir
-        nil
+      def state_dir = nil
+
+      def runtime_dir = nil
+
+      private
+
+      def dir_method(base_strategy_method, subfolder_name)
+        base_strategy.public_send(base_strategy_method).join(author_app_name_path).join(subfolder_name)
       end
     end
   end

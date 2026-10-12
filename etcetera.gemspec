@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
     single-folder convention, and lets you choose which to follow.
   DESCRIPTION
   spec.homepage = "https://github.com/Kerrick/etcetera_rb"
-  spec.required_ruby_version = ">= 3.3.0"
+  spec.required_ruby_version = ">= 4.0.0"
   spec.licenses = ["Apache-2.0", "MIT"]
 
   spec.metadata["homepage_uri"] = spec.homepage
@@ -35,6 +35,10 @@ Gem::Specification.new do |spec|
   spec.bindir = "exe"
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+
+  # The crate depends on windows-sys to call the Known Folder API; this gem
+  # calls it through Fiddle, a bundled gem since Ruby 4.0.
+  spec.add_dependency "fiddle", "~> 1.1"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

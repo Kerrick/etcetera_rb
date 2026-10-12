@@ -1,62 +1,52 @@
 # frozen_string_literal: true
 
-require "pathname"
-
-require_relative "../app_strategy"
-
 module Etcetera
   module AppStrategy
-    # This strategy has no standard or official specification. It has arisen
-    # over time through hundreds of Unixy tools. Vim and Cargo are notable
-    # examples whose configuration/data/cache directory layouts are similar to
-    # those created by this strategy.
+    # This strategy has no standard or official specification. It has arisen over time through hundreds of Unixy tools. Vim and Cargo are notable examples whose configuration/data/cache directory layouts are similar to those created by this strategy.
     #
-    #   args = Etcetera::AppStrategy::AppStrategyArgs.new(
+    #   require "etcetera"
+    #
+    #   app_strategy = Etcetera::AppStrategy::Unix.new(Etcetera::AppStrategy::AppStrategyArgs.new(
     #     top_level_domain: "org",
     #     author: "Acme Corp",
     #     app_name: "Frobnicator Plus"
-    #   )
-    #   app_strategy = Etcetera::AppStrategy::Unix.new(args)
+    #   ))
+    #
     #   home_dir = Etcetera.home_dir
     #
-    #   app_strategy.home_dir    # => home_dir
-    #   app_strategy.config_dir  # => home_dir.join(".frobnicator-plus")
-    #   app_strategy.data_dir    # => home_dir.join(".frobnicator-plus/data")
-    #   app_strategy.cache_dir   # => home_dir.join(".frobnicator-plus/cache")
-    #   app_strategy.state_dir   # => home_dir.join(".frobnicator-plus/state")
-    #   app_strategy.runtime_dir # => home_dir.join(".frobnicator-plus/runtime")
-    class Unix
-      include Etcetera::AppStrategy
+    #   app_strategy.home_dir == home_dir # => true
+    #   app_strategy.config_dir.relative_path_from(home_dir) # => #<Pathname:.frobnicator-plus>
+    #   app_strategy.data_dir.relative_path_from(home_dir) # => #<Pathname:.frobnicator-plus/data>
+    #   app_strategy.cache_dir.relative_path_from(home_dir) # => #<Pathname:.frobnicator-plus/cache>
+    #   app_strategy.state_dir.relative_path_from(home_dir) # => #<Pathname:.frobnicator-plus/state>
+    #   app_strategy.runtime_dir.relative_path_from(home_dir) # => #<Pathname:.frobnicator-plus/runtime>
+    Unix = Data.define(
+      # This is `.frobnicator-plus` in the above example.
+      :home_dir,
+      :unixy_name
+    ) do
+      include AppStrategy
+      include FieldOrder
 
-      # Create a new Unix app strategy.
-      #
-      # Raises Etcetera::HomeDirError if the home directory cannot be located.
-      def initialize(args)
-        @home_dir = Etcetera.home_dir
-        @unixy_name = ".#{args.unixy_name}"
+      class << self
+        alias_method :from_fields, :new
+        private :from_fields
+
+        # Create a new Unix AppStrategy
+        def new(args) = from_fields(home_dir: Etcetera.home_dir, unixy_name: ".#{args.unixy_name}")
       end
 
-      attr_reader :home_dir
+      private :unixy_name
 
-      def config_dir
-        @home_dir.join(@unixy_name)
-      end
+      def config_dir = home_dir.join(unixy_name)
 
-      def data_dir
-        @home_dir.join(@unixy_name).join("data")
-      end
+      def data_dir = home_dir.join(unixy_name).join("data/")
 
-      def cache_dir
-        @home_dir.join(@unixy_name).join("cache")
-      end
+      def cache_dir = home_dir.join(unixy_name).join("cache/")
 
-      def state_dir
-        @home_dir.join(@unixy_name).join("state")
-      end
+      def state_dir = home_dir.join(unixy_name).join("state/")
 
-      def runtime_dir
-        @home_dir.join(@unixy_name).join("runtime")
-      end
+      def runtime_dir = home_dir.join(unixy_name).join("runtime/")
     end
   end
 end

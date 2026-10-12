@@ -1,9 +1,16 @@
 module Etcetera
   module AppStrategy
-    class Windows
+    class Windows < Data
       include Etcetera::AppStrategy
+      include Comparable
 
-      def initialize: (AppStrategyArgs args) -> void
+      def self.new: (AppStrategyArgs args) -> instance
+      def <=>: (untyped other) -> Integer?
+
+      private
+
+      attr_reader base_strategy: BaseStrategy::Windows
+      attr_reader author_app_name_path: Pathname
     end
   end
 end

@@ -16,17 +16,18 @@ class TestAppStrategyApple < Minitest::Test
   end
 
   def test_config_dir
-    assert_equal @home.join("Library/Preferences/org.acme-corp.Frobnicator-Plus"),
-                 @strategy.config_dir
+    assert_equal Pathname.new("Library/Preferences/org.acme-corp.Frobnicator-Plus"),
+                 @strategy.config_dir.relative_path_from(Etcetera.home_dir)
   end
 
   def test_data_dir
-    assert_equal @home.join("Library/Application Support/org.acme-corp.Frobnicator-Plus"),
-                 @strategy.data_dir
+    assert_equal Pathname.new("Library/Application Support/org.acme-corp.Frobnicator-Plus"),
+                 @strategy.data_dir.relative_path_from(Etcetera.home_dir)
   end
 
   def test_cache_dir
-    assert_equal @home.join("Library/Caches/org.acme-corp.Frobnicator-Plus"), @strategy.cache_dir
+    assert_equal Pathname.new("Library/Caches/org.acme-corp.Frobnicator-Plus"),
+                 @strategy.cache_dir.relative_path_from(Etcetera.home_dir)
   end
 
   def test_state_dir_is_unsupported
